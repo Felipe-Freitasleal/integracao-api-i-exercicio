@@ -1,27 +1,56 @@
-import React, { useState } from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import { Botao, ContainerInputs, ContainerMusicas, InputMusica, Musica } from './styled'
 
-const musicasLocal = [{
-    artist: "Artista 1",
-    id: "1",
-    name: "Musica1",
-    url: "http://spoti4.future4.com.br/1.mp3"
-},
-{
-    artist: "Artista 2",
-    id: "2",
-    name: "Musica2",
-    url: "http://spoti4.future4.com.br/2.mp3"
-},
-{
-    artist: "Artista 3",
-    id: "3",
-    name: "Musica3",
-    url: "http://spoti4.future4.com.br/3.mp3"
-}]
 
 export default function Musicas(props) {
-    const [musicas, setMusicas] = useState(musicasLocal)
+    const { playlist } = props
+
+    const [ musicas, setMusicas ] = useState([])
+    const [ artista, setArtista] = useState("")
+    const [ nomeMusica, setNomeMusica ] = useState("")
+    const [ linkMusica, setLinkMusica ] = useState("")
+
+    const pegarMusica = () =>{
+        axios.get(`https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists/${playlist.id}/tracks`, {
+            headers:{
+                Authorization: "felipe-leal-ammal"
+            }
+        })
+        .then((resposta)=>{
+            console.log(resposta.data)
+            setMusicas(resposta.data.result.tracks)
+        })
+        .catch((erro)=>{
+            console.log(erro.response)
+        })
+    }
+    useEffect(()=>{
+        pegarMusica()
+    },[])
+
+    const addMusica = () => {
+        const body = {
+          artist: artista,
+          name: nomeMusica,
+          url: linkMusica
+        };
+        axios
+          .post(
+            `https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists/${playlist.id}/tracks`,
+            body,{
+                headers:{
+                    Authorization: "felipe-leal-ammal"
+                }
+            })
+            .then((resposta) => {
+                console.log(resposta);
+                pegarMusica();
+            })
+            .catch((erro) => {
+                console.log(erro.response);
+            });
+      };
 
     return (
         <ContainerMusicas>
@@ -35,10 +64,10 @@ export default function Musicas(props) {
                     </Musica>)
             })}
             <ContainerInputs>
-                <InputMusica placeholder="artista" />
-                <InputMusica placeholder="musica" />
-                <InputMusica placeholder="url" />
-                <Botao>Adicionar musica</Botao>
+                <InputMusica placeholder="artista" value={artista} onChange={(event)=>setArtista(event.target.value)}/>
+                <InputMusica placeholder="musica" value={nomeMusica} onChange={(event)=>setNomeMusica(event.target.value)}/>
+                <InputMusica placeholder="url" value={linkMusica} onChange={(event)=>setLinkMusica(event.target.value)}/>
+                <Botao onClick={addMusica}>Adicionar musica</Botao>
             </ContainerInputs>
         </ContainerMusicas>
     )
