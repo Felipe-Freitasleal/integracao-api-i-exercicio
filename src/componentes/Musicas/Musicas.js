@@ -52,6 +52,22 @@ export default function Musicas(props) {
             });
       };
 
+      const deletarMusica = (trackId) => {
+
+        axios.delete(`https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists/${playlist.id}/tracks/${trackId}`, {
+            headers:{
+                Authorization: "felipe-leal-ammal"
+            }
+        })
+        .then((resposta)=>{
+            console.log(resposta);
+            pegarMusica();
+        })
+        .catch((erro)=>{
+            console.log(erro);
+        })
+      }
+
     return (
         <ContainerMusicas>
             <h2>{props.playlist.name}</h2>
@@ -60,7 +76,7 @@ export default function Musicas(props) {
                     <Musica key={musica.id}>
                         <h3>{musica.name} - {musica.artist}</h3>
                         <audio src={musica.url} controls />
-                        <button>X</button>
+                        <button onClick={()=>deletarMusica(musica.id)}>X</button>
                     </Musica>)
             })}
             <ContainerInputs>
