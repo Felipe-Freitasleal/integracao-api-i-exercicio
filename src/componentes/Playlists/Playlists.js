@@ -8,6 +8,7 @@ function Playlists() {
     const [ playlists, setPlaylists ] = useState([])
     console.log(playlists)
     const [ playlistNome, setPlaylistNomes ] = useState("")
+    const [ buscarPlaylist, SetBuscarPlaylist ] = useState("")
 
     const pegarPlayslits = () => {
         axios.get("https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists",{
@@ -54,6 +55,22 @@ function Playlists() {
         })
     }
 
+    const searchPlaylist = async () => {
+        try{
+            const resposta = await axios.get(`https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists/search?name=${buscarPlaylist}`, {
+                headers:{
+                    Authorization: "felipe-leal-ammal"
+                }
+            })
+
+            console.log(resposta)
+            setPlaylists(resposta.data.result.playlist)
+        } catch(error) {
+            console.log(error)
+        }
+        
+    }
+
     // const procurarPlayslistId = () => {
     //     axios.get(`https://us-central1-labenu-apis.cloudfunctions.net/labefy/playlists/search?name=${playlistNome}`)
     // }
@@ -65,10 +82,15 @@ function Playlists() {
                 <input value={playlistNome} onChange={(event)=>setPlaylistNomes(event.target.value)}/>
             </label>
             <button onClick={criarPlaylist}>Criar Playlist</button>
-
+            <br/>
+            <label>
+                Buscar Playlist
+                <input value={buscarPlaylist} onChange={(event)=>SetBuscarPlaylist(event.target.value)}/>
+            </label>
+            <button onClick={searchPlaylist}>Buscar Playlist</button>
          
             {playlists.map((playlist) => {
-                return <Musicas key={playlist.id} playlist={playlist}/>
+                return <Musicas key={playlist.id} playlist={playlist} pegarPlayslits={pegarPlayslits}/>
             })}
 
         </div>
